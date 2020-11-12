@@ -1,10 +1,12 @@
 package com.gabrielm.carteiradeclientes.dominio.repositorio;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.gabrielm.carteiradeclientes.dominio.entidades.Cliente;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ClienteRepositorio {
@@ -53,11 +55,63 @@ public class ClienteRepositorio {
 
     public List<Cliente> buscarTodos() {
 
-        return null;
+        List<Cliente> clientes = new ArrayList<Cliente>();
+
+        StringBuilder sql = new StringBuilder();
+        sql.append(" SELECT CODIGO, NOME, ENDERECO, EMAIL, TELEFONE ");
+        sql.append("    FROM CLIENTE ");
+
+        Cursor resultado = conexao.rawQuery(sql.toString(), null);
+
+        if (resultado.getCount() > 0) {
+            resultado.moveToFirst();
+
+            do {
+
+                Cliente cli = new Cliente();
+
+                cli.codigo = resultado.getInt(resultado.getColumnIndexOrThrow("CODIGO"));
+                cli.nome = resultado.getString(resultado.getColumnIndexOrThrow("NOME"));
+                cli.endereco = resultado.getString(resultado.getColumnIndexOrThrow("ENDERECO"));
+                cli.email = resultado.getString(resultado.getColumnIndexOrThrow("EMAIL"));
+                cli.telefone = resultado.getString(resultado.getColumnIndexOrThrow("TELEFONE"));
+
+                clientes.add(cli);
+
+            } while (resultado.moveToNext());
+            resultado.close();
+        }
+        return clientes;
     }
 
     public Cliente buscarCliente(int codigo) {
 
+        Cliente cliente = new Cliente();
+
+        StringBuilder sql = new StringBuilder();
+        sql.append(" SELECT CODIGO, NOME, ENDERECO, EMAIL, TELEFONE ");
+        sql.append("    FROM CLIENTE ");
+        sql.append(" WHERE CODIGO = ?");
+
+        String[] paramentros = new String[1];
+        paramentros[0] = String.valueOf(codigo);
+
+        Cursor resultado = conexao.rawQuery(sql.toString(), paramentros);
+
+        if (resultado.getCount() > 0) {
+            resultado.moveToFirst();
+
+            cliente.codigo = resultado.getInt(resultado.getColumnIndexOrThrow("CODIGO"));
+            cliente.nome = resultado.getString(resultado.getColumnIndexOrThrow("NOME"));
+            cliente.endereco = resultado.getString(resultado.getColumnIndexOrThrow("ENDERECO"));
+            cliente.email = resultado.getString(resultado.getColumnIndexOrThrow("EMAIL"));
+            cliente.telefone = resultado.getString(resultado.getColumnIndexOrThrow("TELEFONE"));
+
+            resultado.close();
+
+            return cliente;
+
+        }
         return null;
     }
 }
