@@ -48,6 +48,7 @@ public class ActCadCliente extends AppCompatActivity {
         setContentView(R.layout.act_cad_cliente);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         edtNome = (EditText) findViewById(R.id.edtNome);
         edtEndereco = (EditText) findViewById(R.id.edtEndereco);
@@ -57,6 +58,27 @@ public class ActCadCliente extends AppCompatActivity {
         layoutContentCadCliente = (ConstraintLayout) findViewById(R.id.layoutContentCadCliente);
 
         criarConexao();
+        verificaParametro();
+
+    }
+
+
+    private void verificaParametro() {
+
+        Bundle bundle = getIntent().getExtras();
+
+        cliente = new Cliente();
+
+        if (bundle != null && bundle.containsKey("CLIENTE")) {
+
+            cliente = (Cliente) bundle.getSerializable("CLIENTE");
+
+            edtNome.setText(cliente.nome);
+            edtEndereco.setText(cliente.endereco);
+            edtEmail.setText(cliente.email);
+            edtTelefone.setText(cliente.telefone);
+
+        }
     }
 
     private void criarConexao() {
@@ -67,8 +89,8 @@ public class ActCadCliente extends AppCompatActivity {
 
             conexao = dadosOpenHelper.getWritableDatabase();
 
-            Snackbar.make(layoutContentCadCliente, R.string.msg_conexao_sucesso, Snackbar.LENGTH_SHORT)
-                    .setAction(R.string.action_lbl_ok, null).show();
+            //Snackbar.make(layoutContentCadCliente, R.string.msg_conexao_sucesso, Snackbar.LENGTH_SHORT)
+            //      .setAction(R.string.action_lbl_ok, null).show();
 
             clienteRepositorio = new ClienteRepositorio(conexao);
 
@@ -84,14 +106,16 @@ public class ActCadCliente extends AppCompatActivity {
 
     private void confirmar() {
 
-        cliente = new Cliente();
-
         if (validaCampos() == false) {
 
             try {
 
-            clienteRepositorio.inserir(cliente);
-            finish();
+                if (cliente.codigo == 0) {
+                    clienteRepositorio.inserir(cliente);
+                } else {
+                    clienteRepositorio.alterar(cliente);
+                }
+                finish();
 
             } catch (SQLException exception) {
 
@@ -131,9 +155,9 @@ public class ActCadCliente extends AppCompatActivity {
             dlg.show();
         } else {
 
-            cliente.nome     = nome;
+            cliente.nome = nome;
             cliente.endereco = endereco;
-            cliente.email    = email;
+            cliente.email = email;
             cliente.telefone = telefone;
         }
 
@@ -168,13 +192,17 @@ public class ActCadCliente extends AppCompatActivity {
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.action_ok:
-                confirmar();
-                //Toast.makeText(this, "Botão Ok seleciondo", Toast.LENGTH_SHORT).show();
+
+            case android.R.id.home:
+                finish();
                 break;
 
-            case R.id.action_cancelar:
-                //Toast.makeText(this, "Botão Cancelar seleciondo", Toast.LENGTH_SHORT).show();
+            case R.id.action_ok:
+                confirmar();
+                break;
+
+            case R.id.action_excluir:
+                clienteRepositorio.excluir(cliente.codigo);
                 finish();
                 break;
         }

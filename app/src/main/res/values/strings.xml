@@ -13,5 +13,6 @@
     <string name="action_lbl_ok">OK</string>
     <string name="lbl_erro">Erro</string>
     <string name="msg_conexao_sucesso">Conexão criada com sucesso!</string>
+    <string name="title_menu_excluir">excluir</string>
 
 </resources>
